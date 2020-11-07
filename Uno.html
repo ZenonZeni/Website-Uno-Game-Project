@@ -1,0 +1,634 @@
+<HTML>
+<HEAD>
+<TITLE> UNO </TITLE>
+<!----------------------------------------------
+Name: Christopher Nguyen
+Date: May 25th 2017
+Course: ICS3U
+Teacher: Mrs. Abram
+TITLE: UNO
+Description: This program is based on the game uno it has most of its game mechanics and i mostly coded some of its rules. When the user clicks on the draw pile it will start the game
+and give you your hand and the AI's. It will also select the discard card and the game will begin.
+------------------------------------------------>
+<SCRIPT LANGUAGE="javaScript">
+var aiHand = new Array(12)
+var turn = 0
+var cards = new Array(108);
+var onDeck = 0
+var nextCard = 0
+var clickCounter = 1
+var start = 0
+var keepTrack = new Array(12)
+var drawnCard= 0
+var discardCard
+var discardValue 
+var discardColor 
+var counter = 0
+var aiCheck = 0
+var blank = "blank.gif"
+var aiDraw = 0
+var aiEndCounter = 0
+var playerEndCounter= 0
+//Create a deck for the draw pile with 108 cards, 2 of each card that has same colour and number then shuffle them.
+for (var suit = 0; suit < 4; suit++){
+	//creating 56 cards of one section
+    for (var face = 0; face <= 13; face++){
+        cards[nextCard] = face;
+        switch(suit){
+			case 0  :  cards[nextCard] += "B"
+            break;
+            case 1  :  cards[nextCard] += "G";
+            break;
+            case 2  :  cards[nextCard] += "R";
+            break;
+            case 3  :  cards[nextCard] += "Y";
+        }
+        cards[nextCard] += ".gif"; 
+        nextCard += 1;
+    }
+	//creating 52 cards of the second section
+	for (var face = 1; face <= 13; face++){
+        cards[nextCard] = face;
+        switch(suit){
+			case 0  :  cards[nextCard] += "B"
+            break;
+            case 1  :  cards[nextCard] += "G";
+            break;
+            case 2  :  cards[nextCard] += "R";
+            break;
+            case 3  :  cards[nextCard] += "Y";
+        }
+		cards[nextCard] += ".gif"; 
+        nextCard += 1;
+    }
+}
+//shuffling 108 cards 56+52= 108 * 2= 216 Note: The uno deck is huge that why i need to shuffle it more.
+var rand1, rand2, hold
+for (var i = 0; i < 216; i++){
+	rand1 = Math.floor(Math.random() * 108)
+	rand2 = Math.floor(Math.random() * 108)
+	hold = cards[rand1]
+	cards[rand1] = cards[rand2]
+	cards[rand2] = hold
+}
+alert("Please Click draw pile Image to begin the game")
+//function to determine what imaged was clicked the first time and second by the user. 
+function usersChoice(imageClicked){
+	if (clickCounter == 1){
+		click1 = imageClicked
+		clickCounter = 2
+		click2 = -1
+		console.log("click1=" + click1)
+		game(click1, click2)
+	}
+	else{
+		click2 = imageClicked
+		clickCounter = 1 
+		console.log("click2=" + click2)
+		game(-1, click2)
+	}
+}
+// Game mechanics and function. They are stored within one big function called game.
+function game(click1, click2){
+var cardValue
+var cardColor
+var check= 0
+var checkV2 = 0
+	if (click1== 0 && click2== -1 && start== 0){
+		for(i= 0; i <7; i++){
+		//draws 7 cards for users hand and AI's hand and also outputs them
+			document.images[i+17].src = cards[i+1]
+			keepTrack[i] = cards[i+1]
+			console.log("user draws"+ i + ":"+ keepTrack[i])
+			aiHand[i] = cards[i+8]
+			console.log("Ai draws" +i+ ":"+ aiHand[i])
+		}
+		//This fills the other space in the user hand with blank and so the AI
+		for(i= 7; i<12; i++){
+			keepTrack[i] = "blank.gif"
+			playerEndCounter+= 1
+			console.log("playerEndCounter=" + playerEndCounter)
+			console.log("keepTrack of cards"+ i + ":" + keepTrack[i])
+			aiEndCounter+= 1
+			console.log("aiEndCounter:" + aiEndCounter)
+			aiHand[i] = "blank.gif"
+			console.log("ai hand" + i + ":"+aiHand[i])
+		}
+		//This choices the first discard card to be placed/outputted in the discard pile and stores it's color and value
+		document.images[15].src = cards[0]
+		discardCard= cards[0]
+		discardValue= discardCard.substring(discardCard.length - 7, discardCard.length - 5)
+		discardColor= discardCard.substring(discardCard.length - 5, discardCard.length - 4)
+		console.log("discard Value=" + discardValue)
+		console.log("discard Color=" + discardColor)
+		the.color.value= discardColor
+		onDeck+= 15
+		console.log("onDeck=" + onDeck)
+		start++
+		//Alerts the players of the rules and includes a disclamer
+		alert ("You and the AI have drawn your first 7 cards and the discard card is: "+ discardCard.substring(discardCard.length-7, discardCard.length-4))
+		alert ("You can now draw a card and place it in discard pile, only if it has same color or number. You can also click the pass button to end the turn. Or maybe you can also just place a card at the beginning, if the card you choose has the same number or color as the discard pile card.")
+		alert ("Anways you can do what you want but the goal of the game is to empty your hand before the AI does so you can WIN :D")
+		alert ("Disclaimer this is not the complete game with all its features, Reverse and Draw two does not work as the original game does and also I do not own the concept of the game just the code.")
+		alert ("Scroll down to refer to the Uno rules while playing the game")
+	}
+// This statement test if the user has drawn their 7 cards and are drawing one.
+	else if(click2== 0 && start==1 && drawnCard==0 && turn==0 || click1==0 && start== 1 && drawnCard==0 && turn==0 ){
+		//This while loop checks for blank.gif and replaces one of them with the drawn card and if user has already drawn a card it says "You have already drawn a card"
+		if(click2==0 && start==1|| click1==0 && start==1){
+			//This loop find a blank and replaces it with the drawn card
+			while(check!= 12){
+				//This test if it is blank and if it is, it exits but if it isn't blank it adds to a counter
+				if (keepTrack[check]!= blank){
+					console.log("keepTrack:" + keepTrack[check])
+					console.log("check:" + check)
+					check+= 1
+				}
+				//This logs and replaces the image source with the card and prevents the card to be drawn again and it stores it in keepTrack which keeps track of players hand.
+				else{
+					document.images[check+17].src= cards[onDeck]
+					keepTrack[check]= cards[onDeck]
+					playerEndCounter-=1
+					console.log("playerEndCounter=" + playerEndCounter)
+					console.log("Draw keepTrack:" + keepTrack[check])
+					console.log("Final check:" + check)
+					console.log("Final Draw image:" + document.images[check+17].src)
+					alert("You have drawn" + cards[onDeck])
+					onDeck++
+					console.log("onDeck=" + onDeck)
+					drawnCard++
+					check=12
+				}	
+			}
+		}
+	}
+	//This alerts you if you have already drawn a card
+	else if (drawnCard== 1 && click1==0 && turn==0 || drawnCard==1 && click2==0 && turn==0){
+		alert("You have already drawn a card!")
+	}
+	// This for if the user clicks on the hand to place it in the discard pile if it matches the same color or value or both :D
+	if(click1>= 1 && click1<=12 && turn==0 || click2>=1 && click2<=12 && turn==0){
+		if(click1>=1 && click1<=12){
+		//checking the color and value of the users card
+			cardValue =keepTrack[click1-1].substring(keepTrack[click1-1].length -7 , keepTrack[click1-1].length -5)
+			cardColor =keepTrack[click1-1].substring(keepTrack[click1-1].length-5, keepTrack[click1-1].length-4)
+			console.log("keepTrack" + click1 +" : "+ keepTrack[click1-1])
+			console.log("cardValue=" + cardValue)
+			console.log("cardColor=" + cardColor)
+			//If player draws a wild card they can change the color of the discard Pile and the players turn ends
+			if(cardValue== 13){
+				discardValue= keepTrack[click1-1].substring(keepTrack[click1-1].length - 7, keepTrack[click1-1].length - 5)
+				do{
+					discardColor= prompt("What color do you want G, R, Y or B - Also it won't work if the letter is not a capital")
+				}while(!(discardColor=="G" || discardColor=="R" || discardColor=="Y" || discardColor=="B"))
+				alert("You have placed: " + keepTrack[click1-1] +" In the discard pile"+" and you changed the color to " + discardColor)
+				discardCard= keepTrack[click1-1]
+				//outputs the discard card from the users hand
+				document.images[15].src= keepTrack[click1-1]
+				keepTrack[click1-1]= "blank.gif"
+				playerEndCounter+= 1
+				console.log("playerEndCounter=" + playerEndCounter)
+				document.images[click1 + 16].src= "blank.gif"
+				console.log("keepTrack"+ click1+ " : " + keepTrack[click1])
+				console.log("discardValue:" + discardValue)
+				console.log("discardColor:" + discardColor)
+				the.color.value= discardColor
+				aiCheck= 0
+				counter=0
+				aiDraw=0
+				counterv2=0
+				turn= 1
+			}
+			//This code check for the skip card then places it down and restart the players turn
+			else if(cardValue== 10 && cardValue == discardValue || cardValue== 10 && cardColor == discardColor){
+				discardValue= keepTrack[click1-1].substring(keepTrack[click1-1].length - 7, keepTrack[click1-1].length - 5)
+				discardColor= keepTrack[click1-1].substring(keepTrack[click1-1].length - 5, keepTrack[click1-1].length - 4)
+				alert("You have placed: " + keepTrack[click1-1] +" In the discard pile"+" and you changed the color to " + discardColor)
+				discardCard= keepTrack[click1-1]
+				//outputs the discard card from the users hand
+				document.images[15].src= keepTrack[click1-1]
+				keepTrack[click1-1]= "blank.gif"
+				playerEndCounter+= 1
+				console.log("playerEndCounter=" + playerEndCounter)
+				document.images[click1 + 16].src= "blank.gif"
+				console.log("keepTrack"+ click1+ " : " + keepTrack[click1])
+				console.log("discardValue:" + discardValue)
+				console.log("discardColor:" + discardColor)
+				the.color.value= discardColor
+				aiCheck= 0
+				counter=0
+				aiDraw=0
+				counterv2=0
+				drawnCard= 0
+				check= 0
+				alert("You have skipped the AI's turn and it is still your turn")
+				turn= 0
+			}
+			//if its a normal card then here it places it down into the discard pile and end the turn
+			else if(cardValue== discardValue || cardColor == discardColor){
+				// if user card matches discard card then place in the pile
+				alert("You have placed: " + keepTrack[click1-1] +" In the discard pile")
+				discardValue= keepTrack[click1-1].substring(keepTrack[click1-1].length - 7, keepTrack[click1-1].length - 5)
+				discardColor= keepTrack[click1-1].substring(keepTrack[click1-1].length - 5, keepTrack[click1-1].length - 4)
+				discardCard= keepTrack[click1-1]
+				//ouputs the discard card form the users hand
+				document.images[15].src= keepTrack[click1-1]
+				keepTrack[click1-1]= "blank.gif"
+				playerEndCounter+= 1
+				console.log("playerEndCounter=" + playerEndCounter)
+				document.images[click1 + 16].src= "blank.gif"
+				console.log("keepTrack"+ click1+ " : " + keepTrack[click1])
+				console.log("discardValue:" + discardValue)
+				console.log("discardColor:" + discardColor)
+				the.color.value= discardColor
+				//looks if their is no blanks in the hand
+				if(playerEndCounter==12){
+					turn=2
+				}
+				//otherwise just continue the game
+				else{
+					aiCheck= 0
+					counter=0
+					aiDraw=0
+					counterv2=0
+					turn= 1
+				}
+			}
+			// otherwise it doesn't work
+			else{
+				alert("That card does not match with the color or value of the discard card")
+			}
+		}
+		//checking the color and value of the users card and doing the same things as above code but using 
+		if(click2>=1 && click2<=12 && turn==0){
+			cardValue =keepTrack[click2-1].substring(keepTrack[click2-1].length -7 , keepTrack[click2-1].length -5)
+			cardColor =keepTrack[click2-1].substring(keepTrack[click2-1].length-5, keepTrack[click2-1].length-4)
+			console.log("keepTrack" + click2 +" : "+ keepTrack[click2-1])
+			console.log("cardValue=" + cardValue)
+			console.log("cardColor=" + cardColor)
+			//If player draws a wild card they can change the color of the discard Pile
+			if(cardValue== 13){
+				discardValue= keepTrack[click2-1].substring(keepTrack[click2-1].length - 7, keepTrack[click2-1].length - 5)
+				do{
+					discardColor= prompt("What color do you want G, R, Y or B - Also it won't work if the letter is not a capital")
+				}while(!(discardColor=="G" || discardColor=="R" || discardColor=="Y" || discardColor=="B"))
+				alert("You have placed: " + keepTrack[click2-1] +" In the discard pile" +" and you changed the color to " + discardColor)
+				discardCard= keepTrack[click2-1]
+				//outputs the discard card from the users hand
+				document.images[15].src= keepTrack[click2-1]
+				keepTrack[click2-1]= "blank.gif"
+				playerEndCounter+= 1
+				console.log("playerEndCounter=" + playerEndCounter)
+				document.images[click2 + 16].src= "blank.gif"
+				console.log("keepTrack"+ click2+ " : " + keepTrack[click2])
+				console.log("discardValue:" + discardValue)
+				console.log("discardColor:" + discardColor)
+				the.color.value= discardColor
+				aiCheck= 0
+				counter=0
+				aiDraw=0
+				counterv2=0
+				turn= 1
+			}
+			//If player placed down a skip turn he gets to go again
+			else if(cardValue== 10 && cardValue == discardValue || cardValue== 10 && cardColor == discardColor){
+				discardValue= keepTrack[click2-1].substring(keepTrack[click2-1].length - 7, keepTrack[click2-1].length - 5)
+				discardColor= keepTrack[click2-1].substring(keepTrack[click2-1].length - 5, keepTrack[click2-1].length - 4)
+				alert("You have placed: " + keepTrack[click2-1] +" In the discard pile" +" and you changed the color to " + discardColor)
+				discardCard= keepTrack[click2-1]
+				//outputs the discard card from the users hand
+				document.images[15].src= keepTrack[click2-1]
+				keepTrack[click2-1]= "blank.gif"
+				playerEndCounter+= 1
+				console.log("playerEndCounter=" + playerEndCounter)
+				document.images[click2 + 16].src= "blank.gif"
+				console.log("keepTrack"+ click2+ " : " + keepTrack[click2])
+				console.log("discardValue:" + discardValue)
+				console.log("discardColor:" + discardColor)
+				the.color.value= discardColor
+				aiCheck= 0
+				counter=0
+				aiDraw=0
+				counterv2=0
+				drawnCard= 0
+				check= 0
+				alert("You have skipped the AI's turn and it is still your turn")
+				turn= 0
+			}
+			// if user card matches discard card then place in the pile
+			else if(cardValue == discardValue || cardColor == discardColor){
+				alert("You have placed: " + keepTrack[click2-1] +" In the discard pile")
+				discardValue= keepTrack[click2-1].substring(keepTrack[click2-1].length - 7, keepTrack[click2-1].length - 5)
+				discardColor= keepTrack[click2-1].substring(keepTrack[click2-1].length - 5, keepTrack[click2-1].length - 4)
+				discardCard= keepTrack[click2-1]
+				//outputs the discard card fron the user's hand
+				document.images[15].src= keepTrack[click2-1]
+				keepTrack[click2-1]= "blank.gif" 
+				playerEndCounter+=1
+				console.log("playerEndCounter=" + playerEndCounter)
+				document.images[click2 + 16].src= "blank.gif"
+				console.log("keepTrack:" + keepTrack[click2])
+				console.log("discardValue:" + discardValue)
+				console.log("discardColor:" + discardColor)
+				the.color.value= discardColor
+				//looks if their is no blanks in the hand
+				if(playerEndCounter==12){
+					turn=2
+				}
+				//otherwise just continue the game
+				else{
+					aiCheck= 0
+					counter=0
+					aiDraw=0
+					checkV2=0
+					turn= 1
+				}
+			}
+			// otherwise it doesn't work
+			else{
+				alert("That card does not match with the color or value of the discard card")
+			}
+		}
+	}
+	// This is for when the user clicks the pass button it ends the turn
+	if(click1== 13 && turn==0 && drawnCard==1 || click2==13 && turn==0 && drawnCard==1){
+		counter= 0
+		aiCheck= 0
+		aiDraw= 0
+		checkV2=0
+		turn=1
+		console.log("Turn:" + turn)
+	}
+	// If user tries to pass without drawing this will pop up
+	else if(click1==13 && turn==0 && drawnCard==0 || click2==13 && turn==0 && drawnCard==0){
+	alert("You have to draw a card to be able to pass")
+	}
+	//This is the computers turn :D
+	if(turn==1){
+		alert("It's the computers turn :D")
+		//This checks the hand for any playable cards and instantly places it down
+		while(counter!=12){
+			if(counter>=0 && counter<12 && counter!=12){
+				cardValue= aiHand[counter].substring(aiHand[counter].length -7 , aiHand[counter].length -5)
+				cardColor= aiHand[counter].substring(aiHand[counter].length -5 , aiHand[counter].length -4)
+				console.log("AI cardValue: " + cardValue)
+				console.log("AI cardColor: " + cardColor)
+			}
+			//This is the code when cardValue or cardColor match discard card then put it in the discard pile
+			if(cardValue== discardValue || cardColor== discardColor){
+				discardValue = cardValue
+				discardColor = cardColor
+				if(discardValue== 10 && cardColor== discardColor){
+					console.log("discardValue =" + discardValue)
+					console.log("discardColor =" + discardColor)
+					//outputs the discard card from the AI Hand
+					document.images[15].src= aiHand[counter]
+					discardCard= aiHand[counter]
+					alert("discardCard is " + discardCard + " and discard Color is " + discardColor)
+					the.color.value= discardColor
+					aiHand[counter]= "blank.gif"
+					aiEndCounter+=1
+					console.log("aiEndCounter=" + aiEndCounter)
+					//if aiEndCounter is 12 then the ai has won and moves on to the turn 2 code at near bottom of the script
+					if(aiEndCounter== 12){
+						counter= 12
+						turn= 2
+						drawnCard= 0
+						check= 0
+					}
+					//if ai places down the skip card then restart the turn 
+					else{
+						counter=0
+						alert("The Ai has place down a skip card and skips your turn")
+						turn= 1
+					}
+				}
+				//Otherwise if it is not a skip card just place it down and run the following code to end the turn
+				else if(discardValue!=10){
+					console.log("discardValue =" + discardValue)
+					console.log("discardColor =" + discardColor)
+					//outputs the discard card from the AI Hand
+					document.images[15].src= aiHand[counter]
+					discardCard= aiHand[counter]
+					alert("discardCard is " + discardCard + " and discard Color is " + discardColor)
+					the.color.value= discardColor
+					aiHand[counter]= "blank.gif"
+					aiEndCounter+=1
+					//if the end counter is 12 then move to the next if statement
+					if(aiEndCounter== 12){
+						counter= 12
+						turn= 2
+						drawnCard= 0
+						check= 0
+					}
+					//other wise just end the ai's turn
+					else{
+						counter= 12
+						drawnCard= 0
+						check= 0
+						alert("Its your turn")
+						turn=0
+					}
+					console.log("aiEndCounter=" + aiEndCounter)
+				}
+			}
+			//if cardValue or cardColor doesn't match add to the counter to just next card in the array
+			else if(cardValue!= discardValue && cardColor!= discardColor){
+				counter+= 1	
+				console.log("The Counter:" + counter)
+			}
+			//if none of them match then just exit the loop
+			else{
+				counter=12
+				console.log("The AI while loop ends")
+			}
+							
+		}
+		//This is the loop that starts if you do not have cards the match the value or color and this loops draws a card in places it in a blank
+		if(counter==12 && aiDraw==0 && turn==1 && checkV2<12){
+			while(checkV2!= 12){
+				//This test if it is blank and if it is, it exits but if it isn't blank it adds to a counter
+				if (aiHand[aiCheck]!= blank){
+					console.log("AiHand:" + aiHand[aiCheck])
+					console.log("aiCheck:" + aiCheck)
+					aiCheck+= 1
+				}	
+				//This logs and replaces the image source with the card and prevents the card to be drawn again and it stores it in keepTrack which keeps track of players hand.
+				else{
+					aiHand[aiCheck]= cards[onDeck]
+					aiEndCounter-=1
+					console.log("aiEndCounter:" + aiEndCounter)
+					console.log("Ai Draw's:" + aiHand[aiCheck])
+					console.log("Final check:" + aiCheck)
+					alert("AI has drawn a card")
+					cardValue= aiHand[aiCheck].substring(aiHand[aiCheck].length -7 , aiHand[aiCheck].length -5)
+					cardColor= aiHand[aiCheck].substring(aiHand[aiCheck].length -5 , aiHand[aiCheck].length -4)
+					console.log("cardValue=" + cardValue)
+					console.log("cardColor=" + cardColor)
+					onDeck++
+					console.log("onDeck=" + onDeck)
+					drawnCard= 0
+					check= 0
+					aiDraw=1
+					checkV2=12
+							
+				}		
+			}
+			
+		}
+		//if card value or card color of the drawn card matches the discard value or discard color place it in the discard pile and end the game
+		if(cardValue== discardValue && aiDraw==1 && turn==1 || cardColor== discardColor && aiDraw==1 && turn==1){
+			discardValue = cardValue
+			discardColor = cardColor
+			//if it is a skip card place it down and move to the next code under
+			if(discardValue==10){
+				console.log("discardValue =" + discardValue)
+				console.log("discardColor =" + discardColor)
+				//outputs the discard card from the AI Hand
+				document.images[15].src= aiHand[aiCheck]
+				discardCard= aiHand[aiCheck]
+				alert("discardCard is " + discardCard +"and discard Color is " + discardColor)
+				aiHand[aiCheck]= "blank.gif"
+				aiEndCounter+=1
+				console.log("aiEndCounter=" + aiEndCounter)
+				alert("AI has placed down the drawn card into discard pile, the discardCard is " + discardCard)
+				the.color.value= discardColor
+			}
+			//other wise if its not a skip card then just place a card normally 
+			else if(discardValue!=10){
+				console.log("discardValue =" + discardValue)
+				console.log("discardColor =" + discardColor)
+				console.log("aihand" + aiHand[aiCheck])
+				discardCard= aiHand[aiCheck]
+				//outputs the discard card from the AI Hand
+				document.images[15].src= aiHand[aiCheck]
+				alert("AI has placed down the drawn card into discard pile, the discardCard is " + discardCard + " and discard Color is " + discardColor)
+				console.log("AI has placed down the drawn card into discard pile, the discardCard is " + discardCard)
+				aiHand[aiCheck]= "blank.gif"
+				aiEndCounter+=1
+				console.log("aiEndCounter:" + aiEndCounter)
+				the.color.value= discardColor
+			}	
+			//This checks if the game is over
+			if(aiEndCounter==12){
+				turn=2
+			}
+			//if ai places down the skip card then restart ai turn
+			else if(discardValue==10 && cardValue== 10 && discardColor== cardColor){
+				counter= 0
+				aiCheck= 0
+				aiDraw= 0
+				checkV2=0
+				alert("The Ai has place down a skip card and skips your turn")
+				turn= 1
+			}
+			//If not continue the game
+			else{
+				counter= 0
+				aiCheck= 0
+				aiDraw= 0
+				checkV2=0
+				alert("Its your turn")
+				turn=0				
+			}
+		}
+		//if ai draws a card and cardValue or cardColor does not match the discard card then end the ai's turn
+		else if(cardValue!= discardValue && aiDraw==1 && turn==1 || cardColor!= discardColor && aiDraw==1 && turn==1){
+			counter= 0
+			aiCheck= 0
+			aiDraw= 0
+			checkV2=0
+			alert("Its your turn")
+			turn=0		
+		}
+	}
+	//This code alerts the user or AI when they won and ends the game
+	if(turn==2){
+		//Two if statements to determine who wins
+		//player wins
+		if(playerEndCounter==12){
+			alert("You have Won")
+		}
+		//AI wins
+		else if(aiEndCounter==12){
+			alert("The AI has won")
+		}
+		//This is an else that check's if there is an error
+		else{
+			alert("Error")
+		}
+	//This tells the player to refresh the page if they want to play again
+	alert("Please Refresh the Page if you want to start a new game or restart")
+	}
+}
+</SCRIPT>
+</HEAD>
+<BODY>
+
+<!----------- AI's HAND--------------->
+<P><CENTER> <U>AI's Hand</U>
+<P> <IMG SRC= "Uno.gif" width= "75" height ="75" Align="left">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+<IMG SRC = "blank.gif" width = "50" height ="75">
+
+
+<!-----------Draw Pile + Discard Pile--------------->
+<P><BR> <P><BR> <P><BR>
+<U>Draw Pile</U> --- <U>Discard Pile</U>
+<P><BR>
+<A HREF="#" onClick= 'usersChoice(0)'> <IMG SRC = "blank.gif" width = "50" height ="72" > </A> <!---Note 13 in the image array --->
+<IMG SRC = "white.gif" width = "50">
+<!---Note: this is the discard pile image----->
+<IMG SRC = "white.gif" width = "50" height ="77">
+
+<!-----------User Hand / Controls------------------>
+<P> <BR> The discard Color:<FORM NAME="the">
+<INPUT TYPE = "text" NAME = "color" SIZE = "1" VALUE ="">
+</FORM>
+<P><BR> <P><BR> 
+<U>Users Hand</U>
+<P><BR>
+<BODY BGCOLOR="white";>
+<IMG SRC = "Uno.gif" width= "75" height= "75" Align="left">
+<A HREF="#" onClick= 'usersChoice(1)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(2)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(3)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(4)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(5)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(6)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(7)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(8)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(9)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(10)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(11)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<A HREF="#" onClick= 'usersChoice(12)'> <IMG SRC = "blank.gif" width = "50" height ="72"> </A>
+<input type="button" Name="pass" Value="Pass" onClick= 'usersChoice(13)'> </A>
+<HR>
+<!-----------------------------UNO RULES by: Christopher Nguyen------------------------------->
+<P><BR> <U>Rules of Christopher Nguyen's UNO Game</U>
+<P><BR> At the beginning of the game you draw 7 cards. To place a card in discard pile you must match the cards value or card color in your hand with the discard Pile card value or color.
+Your goal is to empty your hand before the AI does. If you don't have a card that matches the value or color then draw a card by clicking the image under draw pile and if you still can't do anything just click the pass button.
+<P><BR> <U>There are 4 different color's R for Red, B for Blue, Y for Yellow and G for Green</U>
+<P><BR> <B><U>Special Cards</B></U>
+<P> <BR> <U>Wild Card</U>
+<P><BR> <IMG SRC = "13B.gif" width = "50" height="72">
+<P><BR> Currently this is called the Wild card it allows the player to change the discardColor to anything. It does not have to match discard Value or discard Color of the discard card.
+<P><BR> <U>Skip Card</U>
+<P><BR> <IMG SRC= "10B.gif" width="50" height="72"><IMG SRC= "10R.gif" width="50" height="72"><IMG SRC= "10G.gif" width="50" height="72"><IMG SRC= "10Y.gif" width="50" height="72">
+<P><BR> This card can be used by the AI/Player to skip each others turn and go again. It can only be used when its card Color matches the discardColor.
+<P><BR> <B><U> Disclaimer!
+<P><BR> <IMG SRC = "11B.gif" width="50" height="72"><IMG SRC = "11R.gif" width="50" height="72"><IMG SRC = "11G.gif" width="50" height="72"><IMG SRC = "11Y.gif" width="50" height="72"> 
+<IMG SRC = "12B.gif" width="50" height="72"> <IMG SRC = "12R.gif" width="50" height="72"> <IMG SRC = "12G.gif" width="50" height="72"> <IMG SRC = "12Y.gif" width="50" height="72"> 
+<P><BR> Currently these two cards do not have any special features, currently they act like normal card. the reverse card is the value of 11 while the +2 meaning draw 2 card acts as the value of 12.
+</BODY>
+</HTML>
